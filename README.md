@@ -1,3 +1,8 @@
+![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)
+![NumPy](https://img.shields.io/badge/NumPy-1.24+-orange.svg)
+![License](https://img.shields.io/badge/License-Academic-green.svg)
+![Status](https://img.shields.io/badge/Status-Complete-success.svg)
+![Algorithm](https://img.shields.io/badge/Algorithm-PSO-red.svg)
 # Particle Swarm Optimization (PSO) Implementation
 
 A Python implementation of the Particle Swarm Optimization algorithm for the Fuzzy Systems and Evolutionary Computing course (a.y. 2024-2025).
