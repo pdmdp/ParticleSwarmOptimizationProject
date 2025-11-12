@@ -8,7 +8,6 @@
 A Python implementation of the Particle Swarm Optimization algorithm for the Fuzzy Systems and Evolutionary Computing course (a.y. 2024-2025).
 
 **Author:** Matteo Pietro Di Pilato  
-**ID:** 525298
 
 ## Overview
 
