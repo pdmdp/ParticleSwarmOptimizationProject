@@ -1,6 +1,7 @@
-"""Seeded PSO for bounded maximization, reviewed in November 2026.
+"""Experimental attractive PSO for bounded maximization, November 2026.
 
-The submitted softpy notebook is retained separately. This implementation uses
+The submitted notebook follows the assignment equation. This later variant changes
+that equation and is not a substitute for the required softpy implementation. It uses
 NumPy directly and keeps the fitness_func(particle) and fit(n_iters) interface.
 """
 from dataclasses import dataclass

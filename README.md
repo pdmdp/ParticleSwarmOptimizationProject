@@ -2,15 +2,15 @@
 
 A small implementation of particle swarm optimization for bounded continuous functions. Each particle combines inertia with attraction to its personal best, a sampled neighborhood's best and the swarm's best position.
 
-[Reviewed implementation](pso_implementation.py) · [Original coursework notebook](FuzzySystems-EvolutionaryComputing-Project.ipynb) · [Tests](tests/test_pso.py)
+[Coursework notebook](FuzzySystems-EvolutionaryComputing-Project.ipynb) · [Experimental variant](pso_implementation.py) · [Assignment context](docs/assignment-context.md)
 
-## Original submission and review
+## Coursework specification and experimental variant
 
-The 2024/25 coursework implements the required `softpy` interfaces. Its velocity equation uses `position - best`, which points away from the remembered best positions. The saved two-dimensional sphere example ends at fitness −1.508873 after 10,000 iterations.
+The **2024/25 submission** is the notebook linked above. The assignment explicitly prescribes `candidate - best` in its velocity equation (page 3), for the personal, neighborhood and global terms. The notebook follows that specified direction and uses the required `softpy` interfaces. Its saved sphere example reports fitness −1.508873 after 10,000 iterations.
 
-The **November 2026 review** adds an importable NumPy implementation using `best - position`. It also introduces a local random generator, resets state for each `fit`, evaluates the final moved population and handles zero neighbors. The original notebook is preserved as submitted; the new benchmark results belong to the reviewed code.
+The **November 2026 experiment** adds a separate NumPy implementation using the usual attractive direction, `best - position`. This changes the assignment's algorithm. It also uses a local random generator, restarts each fit, evaluates the final moved population and applies a different boundary rule. It does not implement the required `softpy` inheritance, so it is **not a replacement for the course submission**. The benchmarks below concern this later variant only. [The distinction is documented here](docs/assignment-context.md).
 
-## Run
+## Run the experimental variant
 
 ```bash
 git clone https://github.com/pdmdp/ParticleSwarmOptimizationProject.git
@@ -53,11 +53,11 @@ All checks use 15 particles, three sampled neighbors, 300 updates, bounds `[−5
 
 The sphere converges reliably in these runs. The other two functions show seed dependence and local optima. These are small correctness and behavior checks, not evidence of general superiority over other optimizers. Full traces and settings are in [results/benchmark.json](results/benchmark.json).
 
-Six tests cover attraction direction, convergence, bounds and final-step evaluation, repeated fits, single-particle/empty-neighborhood behavior, and invalid inputs. The review was tested with Python 3.14.4 and NumPy 2.4.3. The original notebook's separate dependencies are in `requirements-original.txt`.
+Six tests cover attraction direction, convergence, bounds and final-step evaluation, repeated fits, single-particle/empty-neighborhood behavior, and invalid inputs. The variant was tested with Python 3.14.4 and NumPy 2.4.3. The original notebook's separate dependencies are in `requirements-original.txt`.
 
 ## Update rule
 
-With independent scalar random coefficients drawn uniformly from `[0, 1)`, the reviewed velocity is:
+With independent scalar random coefficients drawn uniformly from `[0, 1)`, the experimental variant uses:
 
 ```text
 v = 0.7 v

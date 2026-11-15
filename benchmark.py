@@ -40,7 +40,7 @@ def run():
     root = Path(__file__).resolve().parent
     (root/'results').mkdir(exist_ok=True); (root/'assets').mkdir(exist_ok=True)
     (root/'results/benchmark.json').write_text(json.dumps({
-        'provenance': 'Reviewed implementation, benchmark run on 2026-11-15.',
+        'provenance': 'Experimental attractive NumPy variant, benchmark run on 2026-11-15. Its update rule differs from the course assignment; these are not submission results.',
         'settings': {'particles': 15, 'neighbors': 3, 'iterations': 300,
                      'bounds': [-5.12, 5.12], 'seeds': list(range(10))},
         'results': results,

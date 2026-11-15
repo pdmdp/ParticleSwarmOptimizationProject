@@ -1,5 +1,5 @@
 {
-  "provenance": "Reviewed implementation, benchmark run on 2026-11-15.",
+  "provenance": "Experimental attractive NumPy variant, benchmark run on 2026-11-15. Its update rule differs from the course assignment; these are not submission results.",
   "settings": {
     "particles": 15,
     "neighbors": 3,
