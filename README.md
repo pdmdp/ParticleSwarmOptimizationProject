@@ -1,131 +1,71 @@
-![Python](https://img.shields.io/badge/Python-3.7+-blue.svg)
-![NumPy](https://img.shields.io/badge/NumPy-1.24+-orange.svg)
-![License](https://img.shields.io/badge/License-Academic-green.svg)
-![Status](https://img.shields.io/badge/Status-Complete-success.svg)
-![Algorithm](https://img.shields.io/badge/Algorithm-PSO-red.svg)
-# Particle Swarm Optimization (PSO) Implementation
+# Particle swarm optimization
 
-A Python implementation of the Particle Swarm Optimization algorithm for the Fuzzy Systems and Evolutionary Computing course (a.y. 2024-2025).
+A small implementation of particle swarm optimization for bounded continuous functions. Each particle combines inertia with attraction to its personal best, a sampled neighborhood's best and the swarm's best position.
 
-**Author:** Matteo Pietro Di Pilato  
+[Reviewed implementation](pso_implementation.py) · [Original coursework notebook](FuzzySystems-EvolutionaryComputing-Project.ipynb) · [Tests](tests/test_pso.py)
 
-## Overview
+## Original submission and review
 
-This project implements Particle Swarm Optimization, a population-based meta-heuristic algorithm designed to efficiently explore and exploit high-dimensional search spaces. PSO operates by maintaining a swarm of particles, each encoding a candidate solution, with states defined through positional vectors and associated velocities.
+The 2024/25 coursework implements the required `softpy` interfaces. Its velocity equation uses `position - best`, which points away from the remembered best positions. The saved two-dimensional sphere example ends at fitness −1.508873 after 10,000 iterations.
 
-## Algorithm Description
+The **November 2026 review** adds an importable NumPy implementation using `best - position`. It also introduces a local random generator, resets state for each `fit`, evaluates the final moved population and handles zero neighbors. The original notebook is preserved as submitted; the new benchmark results belong to the reviewed code.
 
-PSO updates particle velocities and positions at each iteration using the canonical update rule:
-
-```
-velocity ← (inertia) · velocity
-         + r_l · w_l · (candidate - local_best)
-         + r_n · w_n · (candidate - neighborhood_best)
-         + r_g · w_g · (candidate - global_best)
-```
-
-Where:
-- **inertia** (0.7): Weight for previous velocity
-- **w_l** (0.1): Weight for attraction to personal best
-- **w_n** (0.1): Weight for attraction to neighborhood best  
-- **w_g** (0.8): Weight for attraction to global best
-- **r_l, r_n, r_g**: Random coefficients ∈ [0,1]
-
-## Features
-
-- **ParticleCandidate Class**: Represents individual particles with position and velocity
-- **ParticleSwarmOptimizer Class**: Manages the swarm and optimization loop
-- **Neighborhood Dynamics**: Dynamic neighbor sampling for information sharing
-- **Boundary Handling**: Particles remain within defined search space bounds
-- **softpy Integration**: Full compatibility with the softpy library interface
-
-## Installation
+## Run
 
 ```bash
-pip install softpy numpy scipy
+git clone https://github.com/pdmdp/ParticleSwarmOptimizationProject.git
+cd ParticleSwarmOptimizationProject
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -v
+python benchmark.py
 ```
-
-## Usage
 
 ```python
 import numpy as np
-from pso_implementation import ParticleSwarmOptimizer, ParticleCandidate
+from pso_implementation import ParticleSwarmOptimizer
 
-# Define fitness function (to maximize)
-def fitness_function(particle):
-    return -np.sum(particle.candidate ** 2)
-
-# Create PSO optimizer
-pso = ParticleSwarmOptimizer(
-    fitness_func=fitness_function,
+optimizer = ParticleSwarmOptimizer(
+    fitness_func=lambda particle: -np.sum(particle.candidate**2),
     pop_size=15,
     n_neighbors=3,
     size=2,
-    lower=np.array([-10.0, -10.0]),
-    upper=np.array([10.0, 10.0])
+    lower=-10.0,
+    upper=10.0,
+    seed=42,
 )
-
-# Run optimization
-result = pso.fit(n_iters=10000)
-
-print(f"Best solution: {result.candidate}")
-print(f"Best fitness: {pso.global_fitness_best}")
+best = optimizer.fit(n_iters=300)
+print(best.candidate, optimizer.global_fitness_best)
 ```
 
-## Project Structure
+The interface **maximizes** fitness. Negate a loss to minimize it. Scalar bounds are broadcast to all dimensions; arrays allow a separate interval for each dimension. `n_iters` counts position updates, so the objective is evaluated on the initial population and after every update. Repeating `fit` with an integer seed starts the same experiment again.
 
-```
-.
-├── FuzzySystems-EvolutionaryComputing-Project.ipynb
-├── README.md
-├── requirements.txt
-└── src/
-    └── pso_implementation.py
-```
+## Seeded checks
 
-## Implementation Details
+![Median best loss and interquartile range across ten seeds for three functions](assets/convergence.png)
 
-### ParticleCandidate Class
+All checks use 15 particles, three sampled neighbors, 300 updates, bounds `[−5.12, 5.12]` in both dimensions, and seeds 0–9. The shaded range is the interquartile range. Losses below `1e-16` are clipped to that value for the logarithmic plot only.
 
-Inherits from `FloatVectorCandidate` with the following key methods:
+| Function | Median final loss | Best | Worst |
+| :--- | ---: | ---: | ---: |
+| Sphere, 2D | 1.86e−43 | 3.97e−44 | 8.79e−43 |
+| Rosenbrock, 2D | 0.00747 | 0.00000 | 0.62592 |
+| Rastrigin, 2D | 0.99496 | 0.00000 | 0.99496 |
 
-- `generate(size, lower, upper)`: Factory method for random particle initialization
-- `mutate()`: Updates position using current velocity
-- `recombine(local_best, neighborhood_best, global_best)`: Updates velocity using PSO formula
+The sphere converges reliably in these runs. The other two functions show seed dependence and local optima. These are small correctness and behavior checks, not evidence of general superiority over other optimizers. Full traces and settings are in [results/benchmark.json](results/benchmark.json).
 
-### ParticleSwarmOptimizer Class
+Six tests cover attraction direction, convergence, bounds and final-step evaluation, repeated fits, single-particle/empty-neighborhood behavior, and invalid inputs. The review was tested with Python 3.14.4 and NumPy 2.4.3. The original notebook's separate dependencies are in `requirements-original.txt`.
 
-Inherits from `MetaHeuristicsAlgorithm` with core functionality:
+## Update rule
 
-- `__init__()`: Initialize swarm parameters
-- `fit(n_iters)`: Main optimization loop with fitness evaluation and particle updates
+With independent scalar random coefficients drawn uniformly from `[0, 1)`, the reviewed velocity is:
 
-## Example Results
-
-Testing on a simple quadratic function with optimum at [0, 0]:
-
-```
-Best solution found: [-0.789, 0.941]
-Best fitness: -1.508873
-Distance from optimum: 1.2284
+```text
+v = 0.7 v
+  + 0.1 r_personal (personal_best - position)
+  + 0.1 r_neighbor (neighborhood_best - position)
+  + 0.8 r_global   (global_best - position)
 ```
 
-## Requirements
+Positions are clipped to their bounds and outward velocity is set to zero on clipped dimensions. The weights retain the coursework configuration; they are not a tuned recommendation for arbitrary objectives.
 
-- Python 3.7+
-- numpy >= 1.24.0
-- scipy >= 1.11.0
-- softpy >= 0.1.2
-
-## Course Information
-
-This project was developed for the Fuzzy Systems and Evolutionary Computing course at the University, demonstrating practical implementation of swarm intelligence algorithms within a structured optimization framework.
-
-## License
-
-This project is for educational purposes as part of academic coursework.
-
-## References
-
-- Kennedy, J., & Eberhart, R. (1995). Particle swarm optimization
-- softpy library documentation: https://github.com/evolutionary-computing/softpy
+**Matteo Pietro Di Pilato** · Fuzzy Systems and Evolutionary Computing, BSc in Artificial Intelligence. Code: [MIT](LICENSE).
